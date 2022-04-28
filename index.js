@@ -13,18 +13,18 @@ app.use(cors());
 
 
 
-app.get("/", handleHomePage);
+// app.get("/", handleHomePage);
 app.get("/favorite", handleFavorite);
 app.get ('/trending',handelTrending);
-app.get("/searchMovie", handleSearch);
+app.get("/search", handleSearch);
 
 
 
 
-function handleHomePage(req, res) {   
-    let newMovie = new movie(dataJson.title, dataJson.poster_path, dataJson.overview);
-res.json(newMovie);
-}
+// function handleHomePage(req, res) {   
+//     let newMovie = new movie(dataJson.title, dataJson.poster_path, dataJson.overview);
+// res.json(newMovie);
+// }
     
 
 function handleFavorite(req, res) {
@@ -42,7 +42,7 @@ function handelTrending(req,res){
       .then((result) =>{
           console.log(result);
       
-            let newArr =result.data.results.map(x => {return new Dataa(this.id,this.title,this.release_date,this.poster_path,this.overview)})
+            let newArr =result.data.results.map(x => {return new Dataa(x.id,x.title,x.release_date,x.poster_path,x.overview)})
        res.json(newArr)
       
       }).catch((err)=>{
@@ -53,11 +53,13 @@ function handelTrending(req,res){
 
 
   function handleSearch(req, res) {
-    let movieName = req.query.name; 
+    let movieName = req.query.movieName; 
     console.log(req.query);
+    
 
+    let url = `https://api.themoviedb.org/3/search/movie?api_key=832cef0f07230d4d9616526456183935&language=en-us&query=${movieName}&page=2`;
+    // let url = `https://api.themoviedb.org/3/search/movie?api_key=${apiKey}&language=en-us&query=${movieName}&page=2`;
 
-    let url = `https://api.themoviedb.org/3/search/movie?api_key=${movieName}&apiKey=832cef0f07230d4d9616526456183935`
     
     axios.get(url)
         .then(result => {
