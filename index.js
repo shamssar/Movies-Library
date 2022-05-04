@@ -1,13 +1,14 @@
 'use strict';
 
-
+require(`dotenv`).config();
 const express = require('express');
 const cors = require("cors");
 const axios = require('axios').default;
 
 const dataJson = require("./data.json");
 const port = 3000
-const url = 'https://api.themoviedb.org/3/trending/all/week?api_key=832cef0f07230d4d9616526456183935';
+const apiKey= process.env.APIKEY; 
+// const url = 'https://api.themoviedb.org/3/trending/all/week?api_key=${api}';
 const app = express();
 app.use(cors());
 
@@ -36,11 +37,12 @@ function handleListen() {
 }
 
 function handelTrending(req,res){ 
-    console.log(url);
+    let url=`https://api.themoviedb.org/3/trending/all/week?api_key=${apiKey}&language=en-US`
+
      
       axios.get(url)
       .then((result) =>{
-          console.log(result);
+          console.log(result);  
       
             let newArr =result.data.results.map(x => {return new Dataa(x.id,x.title,x.release_date,x.poster_path,x.overview)})
        res.json(newArr)
@@ -52,13 +54,14 @@ function handelTrending(req,res){
   }
 
 
+
+
   function handleSearch(req, res) {
     let movieName = req.query.movieName; 
     console.log(req.query);
     
 
-    let url = `https://api.themoviedb.org/3/search/movie?api_key=832cef0f07230d4d9616526456183935&language=en-us&query=${movieName}&page=2`;
-    // let url = `https://api.themoviedb.org/3/search/movie?api_key=${apiKey}&language=en-us&query=${movieName}&page=2`;
+    let url = `https://api.themoviedb.org/3/search/movie?api_key=${apiKey}&language=en-us&query=${movieName}&page=2`;
 
     
     axios.get(url)
