@@ -7,12 +7,11 @@
 ## WRRC
 
 
-![](/WRRC.png)
 
 
+![my photo](https://user-images.githubusercontent.com/103361130/167216837-413dff7e-55b4-4211-9348-532b88c202d0.jpg)
 
 
-![](/Untitled.png) 
 
 ## Overview
 Home page and favorite
@@ -24,6 +23,13 @@ Home page and favorite
 // 3. the server is listening on port 3000
  //4. creating a route
 // app.METHOD(PATH, HANDLER)
+Creating the database
+Creating the table
+Connecting the database with the table
+Write qureis in my server:
+
+use client.query() to do CRUD
+
 
 ## Project Features
 make a Movie App

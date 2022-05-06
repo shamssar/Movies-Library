@@ -1,86 +1,55 @@
 'use strict';
+const pass = process.env.pass_KEY
+const url = `postgres://student:${pass}@localhost:5432/demo2`
 
-require(`dotenv`).config();
+const PORT = 3000
+
 const express = require('express');
 const cors = require("cors");
-const axios = require('axios').default;
+const bodyParser = require('body-parser');
+require('dotenv').config();
 
-const dataJson = require("./data.json");
-const port = 3000
-const apiKey= process.env.APIKEY; 
-// const url = 'https://api.themoviedb.org/3/trending/all/week?api_key=${api}';
+const { Client } = require('pg')
+const client = new Client(url)
 const app = express();
 app.use(cors());
+app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.json())
+
+app.post('/addMovie',handleAdd);
+app.get('/getMovie',handleGet);
+
+ app.use(handleServerError);
 
 
+function handleAdd (request,response){
+    const { title, release_data, poster_path,overview } = request.body;
+    let sql = `INSERT INTO  movies(title,release_data,poster_path,overview) VALUES($1,$2,$3,$4) RETURNING *`;
+    let values = [title, release_data, poster_path,overview];
 
-// app.get("/", handleHomePage);
-app.get("/favorite", handleFavorite);
-app.get ('/trending',handelTrending);
-app.get("/search", handleSearch);
-
-
-
-
-// function handleHomePage(req, res) {   
-//     let newMovie = new movie(dataJson.title, dataJson.poster_path, dataJson.overview);
-// res.json(newMovie);
-// }
-    
-
-function handleFavorite(req, res) {
-    res.send("Welcome to Favorite Page");
-}
-app.listen(port, handleListen);
-function handleListen() {
-    console.log(`Example app listening on port ${port}`);
+    client.query(sql, values).then((result) => {
+        console.log(result.rows);
+        return response.status(201).json(result.rows[0]);
+    }).catch()
 }
 
-function handelTrending(req,res){ 
-    let url=`https://api.themoviedb.org/3/trending/all/week?api_key=${apiKey}&language=en-US`
+function handleGet (request,response){
+    let sql = 'SELECT * from movies;'
+    client.query(sql).then((result) => {
+        console.log(result);
+        response.json(result.rows);
+    }).catch((err) => {
+         handleServerError(err,request,response);
+     });
+}
 
-     
-      axios.get(url)
-      .then((result) =>{
-          console.log(result);  
-      
-            let newArr =result.data.results.map(x => {return new Dataa(x.id,x.title,x.release_date,x.poster_path,x.overview)})
-       res.json(newArr)
-      
-      }).catch((err)=>{
-          console.log("error")
-      })
-  
-  }
+ function handleServerError(error, request, res) {
+     res.status(500).send(error)
+ }
 
+client.connect().then(() => {
 
-
-
-  function handleSearch(req, res) {
-    let movieName = req.query.movieName; 
-    console.log(req.query);
-    
-
-    let url = `https://api.themoviedb.org/3/search/movie?api_key=${apiKey}&language=en-us&query=${movieName}&page=2`;
-
-    
-    axios.get(url)
-        .then(result => {
-            res.json(result.data.results)
-        })
-        .catch((err)=>{
-            console.log("error")
-        })
-
-
-    }
-
-
-    function Dataa(id, title, release_data, poster_path, overview) {
-        this.id = id ,
-        this.title = title,
-        this.release_data= release_data,
-        this.poster_path = poster_path,
-        this.overview = overview
-    }
-
+    app.listen(PORT, () => {
+        console.log(`Server is listening ${PORT}`);
+    });
+})
