@@ -18,14 +18,19 @@ app.use(bodyParser.json())
 
 app.post('/addMovie',handleAdd);
 app.get('/getMovie',handleGet);
+app.put ('/update/:id',UpdateMovie);
+app.delete('/delete/:id',DeleteMovie);
+app.get('/getMovie/:id',GetMovieId);
 
- app.use(handleServerError);
+
+//  app.use(handleServerError);
+
 
 
 function handleAdd (request,response){
-    const { title, release_data, poster_path,overview } = request.body;
-    let sql = `INSERT INTO  movies(title,release_data,poster_path,overview) VALUES($1,$2,$3,$4) RETURNING *`;
-    let values = [title, release_data, poster_path,overview];
+    const {id, title, release_data, poster_path,overview } = request.body;
+    let sql = `INSERT INTO  movies(id,title,release_data,poster_path,overview) VALUES($1,$2,$3,$4,$5) RETURNING *`;
+    let values = [id,title, release_data, poster_path,overview];
 
     client.query(sql, values).then((result) => {
         console.log(result.rows);
@@ -38,14 +43,54 @@ function handleGet (request,response){
     client.query(sql).then((result) => {
         console.log(result);
         response.json(result.rows);
-    }).catch((err) => {
-         handleServerError(err,request,response);
-     });
+    }).catch(error => {
+        console.log(error);
+    });
 }
 
- function handleServerError(error, request, res) {
-     res.status(500).send(error)
- }
+
+function UpdateMovie (request,response){
+
+    const id = request.params.id;
+    const {title, release_data, poster_path,overview } = request.body;
+    const sql = `UPDATE movies 
+    SET title=$2,release_data=$3, poster_path=$4, overview=$5
+    WHERE id = $1 RETURNING *;`;
+    let values = [id,title,release_data,poster_path,overview]; 
+    client.query (sql,values).then(data=>{
+        response.json(data.rows[0]);
+    }).catch(error => {
+        console.log(error);
+    });
+} 
+
+
+function DeleteMovie(request,response){
+    const id = request.params.id;
+
+    const sql = `DELETE FROM movies WHERE id=${id};`; 
+    client.query(sql).then(()=>{
+        response.status(200).json("deleted");
+    }).catch(error => {
+        console.log(error);
+    });
+}
+
+
+function GetMovieId (request,response){
+    const id = request.params.id;
+
+    const sql = `SELECT * FROM movies WHERE id=${id};`;
+    client.query(sql).then(data=>{
+        response.status(200).json(data.rows)
+        }).catch(error => {
+            console.log(error);
+        });
+}
+
+//  function handleServerError(error, request, response) {
+//      response.status(500).send(error)
+//  }
 
 client.connect().then(() => {
 
@@ -53,3 +98,4 @@ client.connect().then(() => {
         console.log(`Server is listening ${PORT}`);
     });
 })
+
