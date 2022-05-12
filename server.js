@@ -1,17 +1,21 @@
 'use strict';
+require('dotenv').config();
 const pass = process.env.pass_KEY
 const url = `postgres://student:${pass}@localhost:5432/demo2`
 
-const PORT = 3000
+
+const PORT = process.env.PORT_key
+console.log(PORT);
+
 
 const express = require('express');
 const cors = require("cors");
 const bodyParser = require('body-parser');
-require('dotenv').config();
 
-// const { Client } = require('pg')
+
+const { Client } = require('pg')
 // const client = new Client(url)
-const client = new pg.Client({
+const client = new Client({
     connectionString: process.env.DATABASE_URL,
     ssl: { rejectUnauthorized: false }
  });
