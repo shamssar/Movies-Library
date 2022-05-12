@@ -9,8 +9,12 @@ const cors = require("cors");
 const bodyParser = require('body-parser');
 require('dotenv').config();
 
-const { Client } = require('pg')
-const client = new Client(url)
+// const { Client } = require('pg')
+// const client = new Client(url)
+const client = new pg.Client({
+    connectionString: process.env.DATABASE_URL,
+    ssl: { rejectUnauthorized: false }
+ });
 const app = express();
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }))
